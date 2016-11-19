@@ -1,25 +1,17 @@
-
 library(tm)
 library(cluster)
+library(factoextra)
 
 setwd("C:/Users/Vishak/Documents/Code/R")
 
 data <- read.csv("Big1.csv",header = T,stringsAsFactors = F)
 
-data <- iconv(data,"latin1", "ASCII", sub="")
+data <- iconv(data,to = "utf-8")
 
 # Creating a corpus where each line is taken as a document
 corp <- Corpus(VectorSource(data))
 
 corp<- tm_map(corp,removePunctuation)
-
-
-for(j in seq(corp))
-{
-  corpus[[j]] <- gsub("/", " ", corp[[j]])
-  corpus[[j]] <- gsub("@", " ", corp[[j]])
-  corpus[[j]] <- gsub("\\|", " ",corp[[j]])
-}
 
 corp<- tm_map(corp,removeNumbers)
 
