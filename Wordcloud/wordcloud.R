@@ -18,11 +18,13 @@ corpus <- Corpus(VectorSource(data))
 # Removing punctuation marks in the corpus
 corpus <- tm_map(corpus,removePunctuation)
 
-for(j in seq(docs))
+for(j in seq(corpus))
 {
-  docs[[j]] <- gsub("/", " ", docs[[j]])
-  docs[[j]] <- gsub("@", " ", docs[[j]])
-  docs[[j]] <- gsub("\\|", " ", docs[[j]])
+  corpus[[j]] <- gsub("/", " ", corpus[[j]])
+  corpus[[j]] <- gsub("@", " ", corpus[[j]])
+  corpus[[j]] <- gsub("\\|", " ", corpus[[j]])
+  corpus[[j]] <- gsub("http+", "", corpus[[j]],ignore.case = T, perl = T)
+  
 }
 corpus <- tm_map(corpus,removeNumbers)
 
@@ -47,10 +49,7 @@ v <- sort(rowSums(m),decreasing=TRUE)
 d <- data.frame(word = names(v),freq=v)
 head(d, 10)
 
-set.seed(1234)
-wordcloud(words = d$word, freq = d$freq, min.freq = 1, max.words=200, random.order=FALSE, rot.per=0.35, colors=brewer.pal(8, "Dark2"))
-#library("cluster")
-#pam.res <- pam(d, 4)
-# Visualize
-#fviz_cluster(pam.res)
+set.seed(1000)
+wordcloud(words = d$word, freq = d$freq, min.freq = 50, max.words=200, random.order=FALSE, rot.per=0.35, colors=brewer.pal(8, "Dark2"))
+
 

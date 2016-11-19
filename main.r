@@ -6,7 +6,7 @@ setwd("C:/Users/Vishak/Documents/Code/R")
 
 data <- read.csv("Big1.csv",header = T,stringsAsFactors = F)
 
-data <- iconv(data,to = "utf-8")
+data <- iconv(data,"latin1", "ASCII", sub="")
 
 # Creating a corpus where each line is taken as a document
 corp <- Corpus(VectorSource(data))
@@ -16,7 +16,14 @@ corp<- tm_map(corp,removePunctuation)
 corp<- tm_map(corp,removeNumbers)
 
 corp <- tm_map(corp,tolower)
-
+for(j in seq(corpus))
+{
+  corpus[[j]] <- gsub("/", " ", corpus[[j]])
+  corpus[[j]] <- gsub("@", " ", corpus[[j]])
+  corpus[[j]] <- gsub("\\|", " ", corpus[[j]])
+  corpus[[j]] <- gsub("http+", "", corpus[[j]],ignore.case = T, perl = T)
+  
+}
 st <- c("rt",stopwords("english"))
 
 corp <- tm_map(corp,removeWords,st)
@@ -48,12 +55,10 @@ rownames(d)<-NULL
 # Finding the frequent terms with minimum number of occurences as 50
 freq_terms <- findFreqTerms(dtm,lowfreq = 50)
 
-write.csv(d,"dtm.csv",row.names = F)
 
 
 # creating a sparse matrix with the percentage of sparsity as 90%
 dtms <- removeSparseTerms(dtm,0.9)
-head(inspect(dtms))
 
 # k-means clustering using euclidian as a measurement method
 d <- dist(t(dtms), method="euclidian")
