@@ -7,7 +7,10 @@ for x in range(1,6):
     with open(q, 'rt',encoding="utf8") as f:
         reader = csv.reader(f)
         for row in reader:
-            writer.writerow(row)
+            if(row[1]=="freq"):
+                continue
+            if(int(row[1])>50):
+                writer.writerow(row)
 mergefile.close()
 
 """f = open(sys.argv[1], 'rb') # opens the csv file
