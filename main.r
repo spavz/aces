@@ -1,56 +1,67 @@
+
 library(tm)
 library(cluster)
 
 setwd("C:/Users/Vishak/Documents/Code/R")
 
-# Reaading the data from the text file
 data <- read.csv("Big1.csv",header = T,stringsAsFactors = F)
 
-# Converting data to utf-8 encoding
 data <- iconv(data,"latin1", "ASCII", sub="")
+
 # Creating a corpus where each line is taken as a document
-corpus <- Corpus(VectorSource(data))
+corp <- Corpus(VectorSource(data))
 
-# Removing punctuation marks in the corpus
-corpus <- tm_map(corpus,removePunctuation)
+corp<- tm_map(corp,removePunctuation)
 
-for(j in seq(corpus))
+
+for(j in seq(corp))
 {
-  corpus[[j]] <- gsub("/", " ", corpus[[j]])
-  corpus[[j]] <- gsub("@", " ", corpus[[j]])
-  corpus[[j]] <- gsub("\\|", " ",corpus[[j]])
+  corpus[[j]] <- gsub("/", " ", corp[[j]])
+  corpus[[j]] <- gsub("@", " ", corp[[j]])
+  corpus[[j]] <- gsub("\\|", " ",corp[[j]])
 }
-corpus <- tm_map(corpus,removeNumbers)
 
-# Changing the case of each letter in the corpus to lower case
-corpus <- tm_map(corpus,tolower)
+corp<- tm_map(corp,removeNumbers)
 
-# creating a vector of the stop words to be removed
-sw <- c("rt",stopwords("english"))
+corp <- tm_map(corp,tolower)
 
-# Removing the stop words
-corpus <- tm_map(corpus,removeWords,sw)
+st <- c("rt",stopwords("english"))
 
-# Stemming the document
-corpus <- tm_map(corpus,stemDocument)
+corp <- tm_map(corp,removeWords,st)
 
-# Removing white spaces in the corpus
-corpus <- tm_map(corpus,stripWhitespace)
-corpus <- tm_map(corpus,PlainTextDocument)
-dtm <- TermDocumentMatrix(corpus)
+corp <- tm_map(corp,stemDocument)
+
+corp<- tm_map(corp,stripWhitespace)
+
+corp <- tm_map(corp,PlainTextDocument)
+
+dtm <- DocumentTermMatrix(corp)
+
+rownames(dtm) <- c(1:nrow(dtm))
+
 m <- as.matrix(dtm)
-v <- sort(rowSums(m),decreasing=TRUE)
+
+# Sorting the matrix in Descending order
+v <- sort(colSums(m),decreasing=TRUE)
+
+# Converting 'v' into a data frame and storing it in the variable 'd'
 d <- data.frame(word = names(v),freq=v)
+
+#using this for plotting
 da<-d
-head(da)
+
+#head(da,10)
 rownames(d)<-NULL
 
 # Finding the frequent terms with minimum number of occurences as 50
 freq_terms <- findFreqTerms(dtm,lowfreq = 50)
-tail(freq_terms)
+
+write.csv(d,"dtm.csv",row.names = F)
+
 
 # creating a sparse matrix with the percentage of sparsity as 90%
 dtms <- removeSparseTerms(dtm,0.9)
+head(inspect(dtms))
 
 # k-means clustering using euclidian as a measurement method
 d <- dist(t(dtms), method="euclidian")
